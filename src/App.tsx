@@ -6,6 +6,7 @@ interface ToDo {
   title: string;
   description: string;
   isDone: boolean;
+  isOver: boolean;
 }
 
 function App() {
@@ -20,14 +21,13 @@ function App() {
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos))
   })
-
   return (
       <div className="p-6">
         <div className="text-xl text-primary font-display font-bold uppercase select-none">I miei ToDo</div>
         <form onSubmit={(event) => {
           event.preventDefault()
           if (inputTitle !== "") {
-            setTodos([...todos, {title: inputTitle, description: inputDescr, isDone: false}])
+            setTodos([...todos, {title: inputTitle, description: inputDescr, isDone: false, isOver: false}])
             setInputTitle("")
             setInputDescr("")
           }
@@ -70,9 +70,23 @@ function App() {
             todos.map((todo, index) => {
               return(
                 <div
-                  className="relative flex items-start select-none"
+                  className={`bg-red-${((index+1)*100).toString()} w-fit relative flex items-start select-none`}
                   key={index.toString() + todo.title}
-                  style={{textDecoration: todo.isDone? "line-through" : "none"}}
+                  style={{textDecoration: todo.isDone ? "line-through" : "none"}}
+                  onMouseOver={() => {
+                    const temp = [...todos]
+                    for (let i = 0; i < temp.length; i++) {
+                      if(i !== index)
+                        temp[i] = {...temp[i], isOver: false}
+                    }
+                    temp[index] = {...todo, isOver: true}
+                    setTodos(temp)
+                  }}
+                  onMouseLeave={() => {
+                    const temp = [...todos]
+                    temp[index] = {...todo, isOver: false}
+                    setTodos(temp)
+                  }}
                   >
                   <div className="flex h-6 items-center">
                     <input
@@ -84,18 +98,40 @@ function App() {
                         const temp = [...todos]
                         temp[index] = {...todo, isDone: !todo.isDone}
                         setTodos(temp)
-                      }
-                    }/>
+                      }}
+
+                    />
                   </div>
-                  <div className="ml-3">
-                    <label
+                  <div className="flex flex-row">
+                    <div className="ml-3">
+                      <label
                         htmlFor={`check-${index.toString()}`}
                         className="text-sm font-medium leading-6 text-gray-900">
                       {index + 1} - {todo.title}
-                    </label>
-                    <p id="comments-description" className="text-sm font-medium leading-6 text-gray-500">
-                      {todo.description}
-                    </p>
+                      </label>
+                      <p id="comments-description" className="text-sm font-medium leading-6 text-gray-500">
+                        {todo.description}
+                      </p>
+                    </div>
+                    <button
+                      className="bg-primary ml-3 px-2 h-min sm:text-sm text-white rounded-xl shadow-sm hover:bg-opacity-90
+                      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-opacity-30"
+                      style={{display: todo.isOver ? "initial" : "none"}}
+                      onClick={() => {
+                        let temp
+                        if (index === todos.length)
+                          temp = [...todos.slice(0, index)]
+                        else if (index === 0)
+                          temp = [...todos.slice(1)]
+                        else
+                          temp = [...todos.slice(0, index), ...todos.slice(index+1)]
+
+                        setTodos(temp)
+
+                      }}
+                    >
+                      X
+                    </button>
                   </div>
                 </div>
               )
