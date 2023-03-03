@@ -76,8 +76,7 @@ function App() {
                   >
                   <div className="flex h-6 items-center">
                     <input
-                      id="todoTitle"
-                      name="todoTitle"
+                      id={`check-${index.toString()}`}
                       className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                       type="checkbox"
                       checked={todo.isDone}
@@ -90,7 +89,7 @@ function App() {
                   </div>
                   <div className="ml-3">
                     <label
-                        htmlFor="todoTitle"
+                        htmlFor={`check-${index.toString()}`}
                         className="text-sm font-medium leading-6 text-gray-900">
                       {index + 1} - {todo.title}
                     </label>
