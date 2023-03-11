@@ -11,3 +11,7 @@ body {
 .input-validation-wrapper > input {
     @apply border-red-700 border-2
 }
+
+.todo-item:hover > .delete {
+    @apply flex-initial
+}
