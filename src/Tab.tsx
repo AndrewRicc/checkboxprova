@@ -6,7 +6,7 @@ export const Tab = (props: {tab: ITab, index: number, activeIndex: number,onEdit
   const [isEditingTab, setIsEditingTab] = useState(false)
   const [inputValue, setInputValue] = useState('')
 
-  return (
+  return(
     <div
       key={props.index.toString() + props.tab.title}
       id={`tab-${props.index.toString()}`}
