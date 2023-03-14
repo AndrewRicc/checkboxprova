@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import { GrAdd } from '@react-icons/all-files/gr/GrAdd'
 import "./index.css"
-import {TodoItem} from "./TodoItem";
-import {Tab} from "./Tab";
+import { TodoItem } from "./TodoItem";
+import { TabContainer } from "./TabContainer";
+import { InputForm } from "./InputForm";
+import {AddTab} from "./AddTab";
 
 
 export interface ToDo {
@@ -27,6 +28,7 @@ function App() {
     const initialValue = JSON.parse(saved!)
     return initialValue || [{todos: [], title: "Prova", isActive: true}]
   })
+
   /*const [todos, setTodos] = useState<ToDo[]>(() => {
     for (const tab of tabs) {
       if(tab.isActive) {
@@ -54,16 +56,66 @@ function App() {
       temp[activeIndex].todos = [...temp[activeIndex].todos.slice(0, index), ...temp[activeIndex].todos.slice(index+1)]
 
     setTabs(temp)
-
   }
 
   const onTabStatusChange = (tabIndex: number) => {
     setActiveIndex(tabIndex)
   }
 
+  const onTabAdd = () => {
+    if (tabs.length < 8) {
+      const temp = [...tabs]
+      const newTab = {todos: [], title: "newTab"}
+      setTabs([...temp, newTab])
+    }
+  }
+
+  const onEmptyTabsAdd = () => {
+    setTabs([{todos: [], title: "newTab"}])
+    setActiveIndex(0)
+  }
+
   const onTabEdited = (newTabName: string, tabIndex: number) => {
     const temp = [...tabs]
     temp[tabIndex] = {...temp[tabIndex], title: newTabName}
+    setTabs(temp)
+  }
+
+  const onFormSubmit = (event: any) => {
+    event.preventDefault()
+    if (inputTitle !== "") {
+      const temp = [...tabs]
+      temp[activeIndex].todos = [...temp[activeIndex].todos, {title: inputTitle, description: inputDescr, isDone: false}]
+      setTabs(temp)
+      setInputTitle("")
+      setInputDescr("")
+    }
+  }
+
+  const onTitleChange = (event: any) => {
+    setInputTitle(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))
+  }
+
+  const onDescrChange = (event: any) => {
+    setInputDescr(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))
+  }
+
+  const onTabDelete = (index: number) => {
+    let temp = [...tabs]
+
+    if (activeIndex === temp.length-1) {
+      setActiveIndex(activeIndex - 1)
+    }
+
+    if (index === 0 && index === temp.length)
+      temp = []
+    if (index === temp.length)
+      temp = temp.slice(0, index)
+    else if (index === 0)
+      temp = temp.slice(1)
+    else
+      temp = [...temp.slice(0, index), ...temp.slice(index+1)]
+
     setTabs(temp)
   }
 
@@ -74,96 +126,50 @@ function App() {
 
   return (
     <div className="p-6 select-none">
-      <div className="text-xl text-primary font-display font-bold uppercase">I miei ToDo</div>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        if (inputTitle !== "") {
-          const temp = [...tabs]
-          temp[activeIndex].todos = [...temp[activeIndex].todos, {title: inputTitle, description: inputDescr, isDone: false}]
-          setTabs(temp)
-          setInputTitle("")
-          setInputDescr("")
-        }
-      }}>
-        <div className="grid">
-          <div className="flex flex-row gap-x-3">
-            <input
-                type="text"
-                className="block mt-2 rounded-2xl border-gray-300 shadow-sm focus:border-primary focus:ring-primary
-                sm:text-sm"
-                value={inputTitle}
-                onChange={
-                  event => setInputTitle(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))
-                }
-                placeholder="Titolo"
-
-            />
-            <div className="flex flex-row">
-              <input
-                  type="text"
-                  className="block mt-2 w-72 rounded-2xl border-gray-300 shadow-sm focus:border-primary
-                  focus:ring-primary
-                sm:text-sm"
-                  value={inputDescr}
-                  onChange={
-                    event => setInputDescr(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))
-                  }
-                  placeholder="Descrizione"
-              />
-              <button
-                  className="bg-primary ml-3 px-8 py-3 sm:text-sm text-white rounded-xl shadow-sm hover:bg-opacity-90
-                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-opacity-30">
-                Aggiungi ToDo
-              </button>
-            </div>
-          </div>
-        </div>
-      </form>
+      <InputForm
+        disabled={tabs.length === 0}
+        title={'I miei todo'}
+        onFormSubmit={onFormSubmit}
+        titleValue={inputTitle}
+        onTitleChange={onTitleChange}
+        descrValue={inputDescr}
+        onDescrChange={onDescrChange}
+        buttonTitle={"Aggiungi ToDo"}
+      />
       <div className="block">
-        <div className="mt-1 flex flex-row">
-          {
-            tabs.map((tab, index) => {
-              return(
-                <Tab
-                  tab={tab}
-                  index={index}
-                  activeIndex={activeIndex}
-                  onStatusChange={onTabStatusChange}
-                  onEdited={onTabEdited}
-                />
-              )
-            })
-
-
-          }
-          <div
-              className="rounded-t-lg px-8 py-2 w-fit h-fit border-2 border-gray-300"
-              onClick={() => {
-                if(tabs.length < 8) {
-                  const temp = [...tabs]
-                  const newTab = {todos: [], title: "newTab", isActive: false}
-                  setTabs([...temp, newTab])
-                }
-              }}
-          >
-            <GrAdd
-                size={24}
-                color={`${tabs.length < 8 ? `#000` : `#555`}`}
+        {
+          tabs.length > 0 ?
+          <>
+            <TabContainer
+              tabs={tabs}
+              activeIndex={activeIndex}
+              onStatusChange={onTabStatusChange}
+              onEdited={onTabEdited}
+              onAddTab={onTabAdd}
+              iconSize={24}
+              iconColor={`${tabs.length < 8 ? `#000` : `#d7d7d7`}`}
+              onDelete={onTabDelete}
             />
-          </div>
-        </div>
-        <div>
-          {
-            tabs[activeIndex].todos.map((todo, index) =>
-              <TodoItem
-                todo={todo}
-                index={index}
-                onStatusChange={onTodoStatusChange}
-                onDelete={onTodoDelete}
-              />
-            )
-          }
-        </div>
+            <div>
+              {
+                tabs[activeIndex].todos.map((todo, index) =>
+                  <TodoItem
+                    todo={todo}
+                    index={index}
+                    onStatusChange={onTodoStatusChange}
+                    onDelete={onTodoDelete}
+                  />
+                )
+              }
+            </div>
+          </>
+              :
+          <AddTab
+          onAddTab={onEmptyTabsAdd}
+          iconSize={24}
+          iconColor={`${tabs.length < 8 ? `#000` : `#d7d7d7`}`}
+          />
+        }
       </div>
     </div>
   );

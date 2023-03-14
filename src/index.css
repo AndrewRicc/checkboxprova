@@ -12,6 +12,20 @@ body {
     @apply border-red-700 border-2
 }
 
-.todo-item:hover > .delete {
-    @apply flex-initial
+.todo-item .todo-delete {
+    display: none;
 }
+
+.todo-item:hover .todo-delete {
+    display: initial;
+}
+
+.tab-item .tab-delete {
+    display: none;
+}
+
+.tab-item:hover .tab-delete {
+    display: initial;
+    transform: translateX(3) translatey(-47px);
+}
+
