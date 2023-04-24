@@ -2,32 +2,41 @@ import React, {useEffect, useState} from 'react';
 import "./index.css"
 import { TodoItem } from "./TodoItem";
 import { TabContainer } from "./TabContainer";
-import { InputForm } from "./InputForm";
+import {InputForm, TodoInputFormValues} from "./InputForm";
 import {AddTab} from "./AddTab";
+import {useDispatch, useSelector} from "react-redux";
+import {createTodo, deleteTodo, editTodo} from "./store/slices/todo.slice";
+import { v4 as uuidv4 } from 'uuid'
+import {RootState} from "./store";
+import {createTab, deleteTab, editTab} from "./store/slices/tab.slice";
 
 
 export interface ToDo {
   title: string;
   description: string;
   isDone: boolean;
+  id: string;
+  tabId: string;
 }
 
 export interface ITab {
-  todos: ToDo[];
   title: string;
+  id: string;
 }
 
 
 function App() {
 
-  const [inputTitle, setInputTitle] = useState("")
-  const [inputDescr, setInputDescr] = useState("")
+  const dispatch = useDispatch()
+  const todos = useSelector((state: RootState) => state.todos.entities)
+  const tabs = useSelector((state: RootState) => state.tab.entities)
+
   const [activeIndex, setActiveIndex] = useState(0)
-  const [tabs, setTabs] = useState<ITab[]>(() => {
+  /*const [tabs, setTabs] = useState<ITab[]>(() => {
     const saved = localStorage.getItem("tabs")
     const initialValue = JSON.parse(saved!)
     return initialValue || [{todos: [], title: "Prova", isActive: true}]
-  })
+  })*/
 
   /*const [todos, setTodos] = useState<ToDo[]>(() => {
     for (const tab of tabs) {
@@ -40,84 +49,47 @@ function App() {
     return []
   })*/
 
-  const onTodoStatusChange = (todo: ToDo, index: number) => {
+  /*const onTodoStatusChange = (todo: ToDo, index: number) => {
     const temp = [...tabs]
     temp[activeIndex].todos[index] = {...todo, isDone: !todo.isDone}
     setTabs(temp)
-  }
+  }*/
 
-  const onTodoDelete = (index: number) => {
+  /*const onTodoDelete = (index: number) => {
     let temp = [...tabs]
     if (index === temp[activeIndex].todos.length)
       temp[activeIndex].todos = [...temp[activeIndex].todos.slice(0, index)]
     else if (index === 0)
       temp[activeIndex].todos = [...temp[activeIndex].todos.slice(1)]
     else
-      temp[activeIndex].todos = [...temp[activeIndex].todos.slice(0, index), ...temp[activeIndex].todos.slice(index+1)]
+      temp[activeIndex].todos = [...temp[activeIndex].todos.slice(0, index), ...temp[activeIndex].todos.slice(index + 1)]
 
     setTabs(temp)
-  }
+  }*/
 
   const onTabStatusChange = (tabIndex: number) => {
     setActiveIndex(tabIndex)
   }
 
-  const onTabAdd = () => {
-    if (tabs.length < 8) {
-      const temp = [...tabs]
-      const newTab = {todos: [], title: "newTab"}
-      setTabs([...temp, newTab])
-    }
-  }
-
-  const onEmptyTabsAdd = () => {
+  /*const onEmptyTabsAdd = () => {
     setTabs([{todos: [], title: "newTab"}])
     setActiveIndex(0)
-  }
+  }*/
 
-  const onTabEdited = (newTabName: string, tabIndex: number) => {
-    const temp = [...tabs]
-    temp[tabIndex] = {...temp[tabIndex], title: newTabName}
-    setTabs(temp)
-  }
-
-  const onFormSubmit = (event: any) => {
-    event.preventDefault()
-    if (inputTitle !== "") {
-      const temp = [...tabs]
-      temp[activeIndex].todos = [...temp[activeIndex].todos, {title: inputTitle, description: inputDescr, isDone: false}]
-      setTabs(temp)
-      setInputTitle("")
-      setInputDescr("")
+  const onFormSubmit = (values: TodoInputFormValues) => {
+    if (values.title !== "") {
+      dispatch(createTodo({...values, id: uuidv4(), tabId:'1', isDone: false}))
     }
   }
 
-  const onTitleChange = (event: any) => {
+  /*const onTitleChange = (event: any) => {
     setInputTitle(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))
   }
 
   const onDescrChange = (event: any) => {
     setInputDescr(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))
-  }
+  }*/
 
-  const onTabDelete = (index: number) => {
-    let temp = [...tabs]
-
-    if (activeIndex === temp.length-1) {
-      setActiveIndex(activeIndex - 1)
-    }
-
-    if (index === 0 && index === temp.length)
-      temp = []
-    if (index === temp.length)
-      temp = temp.slice(0, index)
-    else if (index === 0)
-      temp = temp.slice(1)
-    else
-      temp = [...temp.slice(0, index), ...temp.slice(index+1)]
-
-    setTabs(temp)
-  }
 
   useEffect(() => {
     localStorage.setItem("tabs", JSON.stringify(tabs))
@@ -127,37 +99,37 @@ function App() {
   return (
     <div className="p-6 select-none">
       <InputForm
-        disabled={tabs.length === 0}
+        disabled={Object.values(tabs).length === 0}
         title={'I miei todo'}
         onFormSubmit={onFormSubmit}
-        titleValue={inputTitle}
-        onTitleChange={onTitleChange}
-        descrValue={inputDescr}
-        onDescrChange={onDescrChange}
         buttonTitle={"Aggiungi ToDo"}
       />
       <div className="block">
         {
-          tabs.length > 0 ?
+          Object.values(tabs).length > 0 ?
           <>
             <TabContainer
-              tabs={tabs}
+              tabs={Object.values(tabs) as ITab[]}
               activeIndex={activeIndex}
               onStatusChange={onTabStatusChange}
-              onEdited={onTabEdited}
-              onAddTab={onTabAdd}
               iconSize={24}
-              iconColor={`${tabs.length < 8 ? `#000` : `#d7d7d7`}`}
-              onDelete={onTabDelete}
+              iconColor={`${Object.values(tabs).length < 8 ? `#000` : `#d7d7d7`}`}
+              onAddTab={(newTab) => dispatch(createTab(newTab))}
+              onEdited={(newTab) => dispatch(editTab(newTab))}
+              onDelete={(tabId) => dispatch(deleteTab(tabId))}
             />
             <div>
               {
-                tabs[activeIndex].todos.map((todo, index) =>
+                Object.values(todos).map((todo, index) =>
                   <TodoItem
-                    todo={todo}
+                    todo={todo!}
                     index={index}
-                    onStatusChange={onTodoStatusChange}
-                    onDelete={onTodoDelete}
+                    onStatusChange={(todo) => {
+                      dispatch(editTodo({...todo, isDone: !todo.isDone}))
+                    }}
+                    onDelete={(id) => {
+                      dispatch(deleteTodo(id))
+                    }}
                   />
                 )
               }
@@ -165,9 +137,9 @@ function App() {
           </>
               :
           <AddTab
-          onAddTab={onEmptyTabsAdd}
-          iconSize={24}
-          iconColor={`${tabs.length < 8 ? `#000` : `#d7d7d7`}`}
+            iconSize={24}
+            iconColor={`${Object.values(tabs).length < 8 ? `#000` : `#d7d7d7`}`}
+            onAddTab={(values: ITab) => dispatch(createTab(values))}
           />
         }
       </div>

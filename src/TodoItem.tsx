@@ -4,7 +4,7 @@ import './index.css'
 import React from "react";
 import classNames from "classnames";
 
-export const TodoItem = (props: {todo: ToDo, index: number, onStatusChange: (todo: ToDo, index: number) => void, onDelete: (index: number) => void}) => {
+export const TodoItem = (props: {todo: ToDo, index: number, onStatusChange: (todo: ToDo, index: number) => void, onDelete: (id: string) => void}) => {
 
   return (
     <div
@@ -35,7 +35,7 @@ export const TodoItem = (props: {todo: ToDo, index: number, onStatusChange: (tod
         </div>
         <TiDelete
           color='#E30000'
-          onClick={() => props.onDelete(props.index)}
+          onClick={() => props.onDelete(props.todo.id)}
           className={'todo-delete'}
         />
       </div>

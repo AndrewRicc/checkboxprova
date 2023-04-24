@@ -5,8 +5,8 @@ import classNames from "classnames";
 import {TiDelete} from "@react-icons/all-files/ti/TiDelete";
 
 export const Tab = (props: {tab: ITab, index: number, activeIndex: number,
-  onEdited: (newTabName: string, tabIndex: number) => void, onStatusChange: (tabIndex: number) => void,
-  onDelete: (tabIndex: number) => void}) => {
+  onEdited: (newTab: ITab) => void, onStatusChange: (tabIndex: number) => void,
+  onDelete: (tabId: string) => void}) => {
   const [isEditingTab, setIsEditingTab] = useState(false)
   const [inputValue, setInputValue] = useState('')
 
@@ -30,14 +30,14 @@ export const Tab = (props: {tab: ITab, index: number, activeIndex: number,
               setInputValue(e.target.value)
             }}
             onBlur={() => {
-              if (inputValue === '')
+              /*if (inputValue === '')
                 if (props.tab.title === '')
                   props.onEdited('Tab', props.index)
                 else
                   props.onEdited(props.tab.title, props.index)
               else
                 props.onEdited(inputValue, props.index)
-              setIsEditingTab(false)
+              setIsEditingTab(false)*/
             }}
             value={inputValue}/>
           :
@@ -48,7 +48,7 @@ export const Tab = (props: {tab: ITab, index: number, activeIndex: number,
       }
       <TiDelete
         color='#E30000'
-        onClick={() => props.onDelete(props.index)}
+        onClick={() => props.onDelete(props.tab.id)}
         className={'tab-delete absolute'}
       />
     </div>

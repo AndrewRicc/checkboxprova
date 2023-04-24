@@ -1,11 +1,26 @@
-import React from "react";
+import React, {useState} from "react";
 
-export const InputForm = (props: {disabled: boolean, title: string, onFormSubmit: (event: any) => void, titleValue: string,
-  onTitleChange: (event: any) => void, descrValue: string, onDescrChange: (event: any) => void, buttonTitle: string}) => {
+export interface TodoInputFormValues {
+  title: string;
+  description: string;
+}
+
+export const InputForm = (props: {disabled: boolean, title: string, onFormSubmit: (values: TodoInputFormValues) => void,
+  buttonTitle: string}) => {
+
+  const [titleValue, setTitleValue] = useState("")
+  const [descrValue, setDescrValue] = useState("")
+
+
   return (
     <>
       <div className="text-xl text-primary font-display font-bold uppercase">{props.title}</div>
-      <form onSubmit={(event) => props.onFormSubmit(event)}>
+      <form onSubmit={(event) => {
+        event.preventDefault()
+        props.onFormSubmit({title: titleValue, description: descrValue})
+        setTitleValue("")
+        setDescrValue("")
+      }}>
         <div className="grid">
           <div className="flex flex-row gap-x-3">
             <input
@@ -13,8 +28,8 @@ export const InputForm = (props: {disabled: boolean, title: string, onFormSubmit
               type="text"
               className="block mt-2 rounded-2xl border-gray-300 shadow-sm focus:border-primary focus:ring-primary
               sm:text-sm"
-              value={props.titleValue}
-              onChange={(event) => props.onTitleChange(event)}
+              value={titleValue}
+              onChange={(event) => setTitleValue(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))}
               placeholder="Titolo"
             />
             <div className="flex flex-row">
@@ -23,8 +38,8 @@ export const InputForm = (props: {disabled: boolean, title: string, onFormSubmit
                 type="text"
                 className="block mt-2 w-72 rounded-2xl border-gray-300 shadow-sm focus:border-primary
                 focus:ring-primary sm:text-sm"
-                  value={props.descrValue}
-                  onChange={(event) => props.onDescrChange(event)}
+                  value={descrValue}
+                  onChange={(event) => setDescrValue(event.target.value.charAt(0).toUpperCase() + event.target.value.slice(1))}
                   placeholder="Descrizione"
               />
               <button

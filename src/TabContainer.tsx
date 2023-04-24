@@ -4,8 +4,8 @@ import React from "react";
 import {AddTab} from "./AddTab";
 
 export const TabContainer = (props: {tabs: ITab[], activeIndex: number, onStatusChange: (tabIndex: number) => void,
-  onEdited: (newTabName: string, tabIndex: number) => void, onAddTab: () => void, iconSize: number, iconColor: string,
-  onDelete: (tabIndex: number) => void}) => {
+  onEdited: (newTab: ITab) => void, onAddTab: (newTab: ITab) => void, iconSize: number, iconColor: string,
+  onDelete: (tabId: string) => void}) => {
   return (
     <div className="mt-1 flex flex-row">
       {
